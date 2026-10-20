@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saúde diária</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1F6F54">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Saúde diária">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F5;--surface:#FFFFFF;--ink:#14212A;--muted:#55656F;--line:#D5DEDB;
+  --accent:#1F6F54;--accent-ink:#FFFFFF;--accent-soft:#DCEFE6;--danger:#A3261E;
+  --glu:#6B4FA0;--bp:#1F5F99;--bp2:#5E8FBF;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1719;--surface:#172226;--ink:#E6EEEC;--muted:#9AACA8;--line:#2A3A3E;
+    --accent:#5CC59B;--accent-ink:#08221A;--accent-soft:#1C3A30;--danger:#F08A80;
+    --glu:#B49BE6;--bp:#7DB3E8;--bp2:#4D7AA6;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1719;--surface:#172226;--ink:#E6EEEC;--muted:#9AACA8;--line:#2A3A3E;
+  --accent:#5CC59B;--accent-ink:#08221A;--accent-soft:#1C3A30;--danger:#F08A80;
+  --glu:#B49BE6;--bp:#7DB3E8;--bp2:#4D7AA6;color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:18px;line-height:1.45;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);
+  padding:14px 18px 10px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:1.35rem;font-weight:700}
+header p{margin:2px 0 0;color:var(--muted);font-size:.95rem}
+main{max-width:640px;margin:0 auto;padding:16px 16px 120px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);
+  border-top:1px solid var(--line);display:flex;justify-content:center;
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+nav .in{display:flex;width:100%;max-width:640px}
+nav button{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-size:.82rem;
+  padding:10px 2px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav button svg{width:24px;height:24px}
+nav button[aria-current="page"]{color:var(--accent);font-weight:700}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h2{font-size:1.05rem;margin:22px 0 8px;color:var(--muted);font-weight:700}
+h2:first-child{margin-top:4px}
+.daybar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.daybar .d{font-weight:700;font-size:1.15rem;text-align:center;flex:1}
+.daybar small{display:block;color:var(--muted);font-weight:400;font-size:.9rem}
+.iconbtn{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:1.3rem}
+.progress{height:10px;background:var(--line);border-radius:5px;overflow:hidden;margin:10px 0 2px}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.progtxt{color:var(--muted);font-size:.95rem;margin:0}
+.med{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin:8px 0}
+.med .box{flex:none;width:34px;height:34px;border-radius:9px;border:2.5px solid var(--muted);
+  display:grid;place-items:center;margin-top:2px}
+.med .box svg{width:22px;height:22px;opacity:0}
+.med.on{background:var(--accent-soft);border-color:var(--accent)}
+.med.on .box{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.med.on .box svg{opacity:1}
+.med b{display:block;font-size:1.08rem}
+.med span{display:block;color:var(--muted);font-size:.93rem}
+.med em{display:block;font-style:normal;color:var(--accent);font-size:.9rem;font-weight:700;margin-top:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:8px 0}
+label{display:block;font-size:.92rem;color:var(--muted);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-height:48px}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big{font-size:1.6rem;font-weight:700;text-align:center}
+.primary{width:100%;margin-top:14px;min-height:52px;border:0;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-weight:700;cursor:pointer}
+.secondary{width:100%;margin-top:10px;min-height:50px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-weight:700;cursor:pointer}
+.entry{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:0}
+.entry .v{font-size:1.25rem;font-weight:700;min-width:92px}
+.entry .m{flex:1;color:var(--muted);font-size:.93rem}
+.entry .del{border:0;background:none;color:var(--danger);cursor:pointer;padding:8px;font-size:.9rem}
+.chart{width:100%;height:auto;display:block}
+.empty{color:var(--muted);text-align:center;padding:18px 8px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin:8px 0}
+.day b{display:block}
+.day p{margin:4px 0 0;color:var(--muted);font-size:.95rem}
+.medit{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.medit:last-child{border-bottom:0}
+.medit .t b{display:block}.medit .t span{color:var(--muted);font-size:.9rem}
+.note{color:var(--muted);font-size:.92rem}
+.banner{background:var(--danger);color:#fff;padding:10px 16px;font-size:.95rem}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.95rem;z-index:20;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.legend{display:flex;gap:16px;font-size:.88rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.sync{display:block;margin-top:2px;border:0;background:none;padding:0;text-align:left;
+  color:var(--muted);font-size:.82rem;cursor:default}
+.sync:empty{display:none}
+.sync.pending{color:var(--danger)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="banner"></div>
+<header><h1 id="title">Hoje</h1><p id="sub"></p><button class="sync" id="sync" type="button"></button></header>
+<main id="app"></main>
+<nav><div class="in" id="tabs"></div></nav>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="fileIn" accept=".json,application/json" hidden>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script type="module">
+import { TABLES, save, remove, toggleDose, toBackup, importBackup } from './sync.js';
+import { supa, savedUser, openStore, login, logout } from './db.js';
+
+const KEY = 'saude-diaria:v1';
+const PERIODS = [
+  {id:'manha', label:'Manhã e jejum'},
+  {id:'almoco', label:'Almoço'},
+  {id:'livre', label:'Qualquer horário'},
+  {id:'noite', label:'Noite e antes de dormir'}
+];
+const MOMENTS = ['Jejum','Antes do almoço','2h após o almoço','Antes do jantar','2h após o jantar','Antes de dormir','Outro'];
+
+function seed(){
+  const m = (id,name,instr,period)=>({id,name,instr,period});
+  return {
+    version:1,
+    meds:[
+      m('m1','Levotiroxina','Primeiro do dia. Em jejum com água; esperar 30 min para comer.','manha'),
+      m('m2','Spray S7 (manhã)','2 jatos sublinguais em jejum. Agitar 7 s, reter 1 min.','manha'),
+      m('m3','Xigduo XR 10/1000','Após o café da manhã.','manha'),
+      m('m4','Homes H','Após o café da manhã.','manha'),
+      m('m5','Composto Androx','1 cápsula após o almoço.','almoco'),
+      m('m6','A.S. (Aspirina)','Após o almoço.','almoco'),
+      m('m7','Composto Apolo 3','1 cápsula no horário mais confortável.','livre'),
+      m('m8','Tadalafila 5 mg','1 vez ao dia.','livre'),
+      m('m9','Fobos 1','1 cápsula à noite.','noite'),
+      m('m10','Trezor','À noite.','noite'),
+      m('m11','Spray S7 (noite)','2 jatos sublinguais antes de dormir. Agitar 7 s, reter 1 min.','noite')
+    ],
+    doses:{}, glucose:[], bp:[]
+  };
+}
+function valid(d){return d && Array.isArray(d.meds) && Array.isArray(d.glucose) && Array.isArray(d.bp) && typeof d.doses==='object' && d.doses}
+const LEGACY_DONE = 'saude-diaria:v1-importado';
+const userId = supa && savedUser();
+let store = null, userEmail = '', showLogin = false, firstRunDone = false;
+// "state" tem o mesmo formato do protótipo; as telas leem dele e as ações gravam no store (IndexedDB + fila)
+let state = {version:1, meds:[], doses:{}, glucose:[], bp:[]};
+const refresh = () => { state = toBackup(store) };
+function commit(msg){ refresh(); render(); store.changed(); if(msg) toast(msg) }
+
+// Primeira sincronização bem-sucedida ao abrir: importa dados do protótipo e/ou cria a lista inicial.
+async function firstRun(){
+  firstRunDone = true;
+  const empty = TABLES.every(t => !store.rows[t].size);
+  let legacy = null; try{ legacy = JSON.parse(localStorage.getItem(KEY)) }catch(e){}
+  if(valid(legacy) && !localStorage.getItem(LEGACY_DONE)){
+    localStorage.setItem(LEGACY_DONE, '1');
+    if(confirm(`Encontramos dados da versão anterior deste app neste aparelho (${legacy.glucose.length} glicoses, ${legacy.bp.length} pressões, ${legacy.meds.length} remédios). Importar para a sua conta?`)){
+      try{ await importBackup(store, userId, legacy); commit('Dados importados.'); return }
+      catch(e){ toast('Não foi possível importar os dados antigos.') }
+    }
+  }
+  if(empty){ await importBackup(store, userId, seed()); commit() }
+}
+async function synced(changed){
+  if(!firstRunDone) await firstRun();
+  if(changed){ refresh(); rerender() }
+}
+// Re-render vindo da sincronização sem apagar o que estiver sendo digitado
+function rerender(){
+  const vals = [...document.querySelectorAll('#app input[id],#app select[id]')].map(i => [i.id, i.value]);
+  const f = document.activeElement && document.activeElement.id;
+  render();
+  for(const [id,v] of vals){ const el = document.getElementById(id); if(el) el.value = v }
+  if(document.getElementById('mid')?.value) document.getElementById('formTitle').textContent = 'Editar remédio';
+  if(f) document.getElementById(f)?.focus();
+}
+function showSync({state:st, pending}){
+  const el = document.getElementById('sync');
+  el.className = 'sync' + (st==='pending'||st==='login' ? ' pending' : '');
+  el.style.cursor = st==='login' ? 'pointer' : 'default';
+  el.textContent = st==='syncing' ? 'Sincronizando…'
+    : st==='login' ? 'Entre de novo para sincronizar'
+    : st==='pending' ? `${pending} ${pending===1?'alteração':'alterações'} aguardando conexão`
+    : 'Sincronizado';
+}
+document.getElementById('sync').addEventListener('click', () => {
+  if(document.getElementById('sync').textContent.startsWith('Entre')){ showLogin = true; render() }
+});
+
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const localInput = d => `${ymd(d)}T${hm(d)}`;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const WD = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+const MO = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+function niceDate(key){const [y,m,d] = key.split('-').map(Number); const dt = new Date(y,m-1,d); return {wd:WD[dt.getDay()], txt:`${d} ${MO[m-1]} ${y}`}}
+function shortTs(ts){const d = new Date(ts); return `${pad(d.getDate())}/${pad(d.getMonth()+1)} ${hm(d)}`}
+
+function toast(msg){const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2200)}
+
+let tab = 'hoje';
+let viewDay = ymd(new Date());
+
+const ICONS = {
+  hoje:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg>',
+  glicose:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg>',
+  pressao:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>',
+  historico:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+  dados:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>'
+};
+const TABS = [['hoje','Remédios'],['glicose','Glicose'],['pressao','Pressão'],['historico','Histórico'],['dados','Dados']];
+
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = TABS.map(([id,l]) =>
+    `<button data-tab="${id}" ${tab===id?'aria-current="page"':''}>${ICONS[id]}<span>${l}</span></button>`).join('');
+}
+document.getElementById('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button[data-tab]'); if(!b) return;
+  tab = b.dataset.tab; render(); window.scrollTo(0,0);
+});
+
+function setHead(t,s){document.getElementById('title').textContent = t; document.getElementById('sub').textContent = s || ''}
+
+/* ---------- Remédios ---------- */
+function renderHoje(){
+  const today = ymd(new Date());
+  const nd = niceDate(viewDay);
+  setHead('Remédios', viewDay===today ? 'Toque no remédio depois de tomar.' : 'Você está vendo outro dia.');
+  const taken = state.doses[viewDay] || {};
+  const total = state.meds.length;
+  const done = state.meds.filter(m => taken[m.id]).length;
+  let h = `<div class="daybar">
+    <button class="iconbtn" data-act="prev" aria-label="Dia anterior">‹</button>
+    <div class="d">${viewDay===today?'Hoje':nd.wd}<small>${nd.txt}</small></div>
+    <button class="iconbtn" data-act="next" aria-label="Próximo dia" ${viewDay>=today?'disabled style="opacity:.35"':''}>›</button>
+  </div>
+  <div class="progress" aria-hidden="true"><i style="width:${total?done/total*100:0}%"></i></div>
+  <p class="progtxt">${done} de ${total} tomados${done===total&&total?' — tudo certo neste dia.':''}</p>`;
+  for(const p of PERIODS){
+    const list = state.meds.filter(m => m.period===p.id);
+    if(!list.length) continue;
+    h += `<h2>${p.label}</h2>`;
+    for(const m of list){
+      const t = taken[m.id];
+      h += `<button class="med ${t?'on':''}" data-med="${m.id}" aria-pressed="${!!t}">
+        <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>
+        <span style="flex:1"><b>${esc(m.name)}</b><span>${esc(m.instr)}</span>${t?`<em>Tomado às ${esc(t)}</em>`:''}</span>
+      </button>`;
+    }
+  }
+  if(!total) h += `<p class="empty">Nenhum remédio cadastrado. Adicione em “Dados”.</p>`;
+  return h;
+}
+
+/* ---------- Gráfico ---------- */
+function chart(series){
+  const pts = series.flatMap(s => s.data.map(d => d.v));
+  if(pts.length < 2) return '';
+  const W = 320, H = 150, L = 34, R = 8, T = 10, B = 18;
+  let lo = Math.min(...pts), hi = Math.max(...pts);
+  const padv = Math.max(5,(hi-lo)*.12); lo = Math.floor(lo-padv); hi = Math.ceil(hi+padv);
+  const n = Math.max(...series.map(s => s.data.length));
+  const x = i => L + (n<=1?0:i*(W-L-R)/(n-1));
+  const y = v => T + (hi-v)*(H-T-B)/(hi-lo);
+  let g = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico das últimas medições">`;
+  for(const v of [hi, Math.round((hi+lo)/2), lo]){
+    g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/>
+          <text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="10" fill="var(--muted)">${v}</text>`;
+  }
+  for(const s of series){
+    const p = s.data.map((d,i) => `${x(i).toFixed(1)},${y(d.v).toFixed(1)}`).join(' ');
+    g += `<polyline points="${p}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    s.data.forEach((d,i) => g += `<circle cx="${x(i)}" cy="${y(d.v)}" r="3.2" fill="${s.color}"/>`);
+  }
+  return g + '</svg>';
+}
+
+/* ---------- Glicose ---------- */
+function renderGlicose(){
+  setHead('Glicose','Registre cada medição do glicosímetro.');
+  const list = [...state.glucose].sort((a,b) => b.ts - a.ts);
+  const last = list.slice(0,20).reverse();
+  let h = `<div class="card">
+    <label for="gv">Valor (mg/dL)</label>
+    <input id="gv" class="big" type="number" inputmode="numeric" min="20" max="600" placeholder="ex.: 110">
+    <div class="row2">
+      <div><label for="gm">Momento</label><select id="gm">${MOMENTS.map(m=>`<option>${m}</option>`).join('')}</select></div>
+      <div><label for="gt">Data e hora</label><input id="gt" type="datetime-local" value="${localInput(new Date())}"></div>
+    </div>
+    <label for="gn">Observação (opcional)</label><input id="gn" type="text" placeholder="ex.: comi doce no almoço">
+    <button class="primary" data-act="saveGlu">Salvar glicose</button>
+  </div>`;
+  if(last.length >= 2) h += `<h2>Últimas ${last.length} medições</h2><div class="card">${chart([{color:'var(--glu)',data:last.map(e=>({v:e.value}))}])}</div>`;
+  h += `<h2>Registros</h2><div class="card">`;
+  h += list.length ? list.slice(0,60).map(e => `<div class="entry">
+      <div class="v" style="color:var(--glu)">${e.value}</div>
+      <div class="m">${shortTs(e.ts)} · ${esc(e.moment)}${e.note?`<br>${esc(e.note)}`:''}</div>
+      <button class="del" data-del="glucose" data-id="${e.id}">Apagar</button></div>`).join('')
+    : `<p class="empty">Nenhuma medição ainda.</p>`;
+  return h + `</div>`;
+}
+
+/* ---------- Pressão ---------- */
+function renderPressao(){
+  setHead('Pressão','Registre os números do aparelho.');
+  const list = [...state.bp].sort((a,b) => b.ts - a.ts);
+  const last = list.slice(0,20).reverse();
+  let h = `<div class="card">
+    <div class="row">
+      <div><label for="ps">Máxima</label><input id="ps" class="big" type="number" inputmode="numeric" placeholder="120"></div>
+      <div><label for="pd">Mínima</label><input id="pd" class="big" type="number" inputmode="numeric" placeholder="80"></div>
+      <div><label for="pp">Pulso</label><input id="pp" class="big" type="number" inputmode="numeric" placeholder="70"></div>
+    </div>
+    <label for="pt">Data e hora</label><input id="pt" type="datetime-local" value="${localInput(new Date())}">
+    <label for="pn">Observação (opcional)</label><input id="pn" type="text" placeholder="ex.: braço esquerdo, sentado">
+    <button class="primary" data-act="saveBp">Salvar pressão</button>
+    <p class="note">Pulso é opcional.</p>
+  </div>`;
+  if(last.length >= 2) h += `<h2>Últimas ${last.length} medições</h2><div class="card">${chart([
+      {color:'var(--bp)',data:last.map(e=>({v:e.sys}))},
+      {color:'var(--bp2)',data:last.map(e=>({v:e.dia}))}])}
+      <div class="legend"><span><i style="background:var(--bp)"></i>Máxima</span><span><i style="background:var(--bp2)"></i>Mínima</span></div></div>`;
+  h += `<h2>Registros</h2><div class="card">`;
+  h += list.length ? list.slice(0,60).map(e => `<div class="entry">
+      <div class="v" style="color:var(--bp)">${e.sys}/${e.dia}</div>
+      <div class="m">${shortTs(e.ts)}${e.pulse?` · pulso ${e.pulse}`:''}${e.note?`<br>${esc(e.note)}`:''}</div>
+      <button class="del" data-del="bp" data-id="${e.id}">Apagar</button></div>`).join('')
+    : `<p class="empty">Nenhuma medição ainda.</p>`;
+  return h + `</div>`;
+}
+
+/* ---------- Histórico ---------- */
+function renderHistorico(){
+  setHead('Histórico','Últimos 30 dias. Toque num dia para ver os remédios dele.');
+  const total = state.meds.length;
+  let h = '';
+  for(let i=0;i<30;i++){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const k = ymd(d);
+    const taken = Object.keys(state.doses[k]||{}).length;
+    const glu = state.glucose.filter(e => ymd(new Date(e.ts))===k).sort((a,b)=>a.ts-b.ts);
+    const bp = state.bp.filter(e => ymd(new Date(e.ts))===k).sort((a,b)=>a.ts-b.ts);
+    const nd = niceDate(k);
+    h += `<button class="day" data-day="${k}" style="width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit">
+      <b>${i===0?'Hoje':i===1?'Ontem':nd.wd}, ${nd.txt}</b>
+      <p>Remédios: ${taken} de ${total}</p>
+      ${glu.length?`<p>Glicose: ${glu.map(e=>`${e.value} (${hm(new Date(e.ts))})`).join(', ')}</p>`:''}
+      ${bp.length?`<p>Pressão: ${bp.map(e=>`${e.sys}/${e.dia} (${hm(new Date(e.ts))})`).join(', ')}</p>`:''}
+    </button>`;
+  }
+  return h;
+}
+
+/* ---------- Dados ---------- */
+function renderDados(){
+  setHead('Dados','Remédios cadastrados, backup e transferência.');
+  let h = `<h2>Backup e transferência</h2><div class="card">
+    <p class="note" style="margin-top:0">Os dados ficam salvos neste aparelho e são sincronizados pela internet com os outros aparelhos em que você entrou. O backup é uma cópia extra: baixe de vez em quando.</p>
+    <button class="primary" data-act="exportJson">Baixar backup (.json)</button>
+    <button class="secondary" data-act="exportCsv">Baixar planilha (.csv)</button>
+    <button class="secondary" data-act="import">Juntar dados de um backup</button>
+  </div>
+  <h2>Remédios cadastrados</h2><div class="card">`;
+  for(const p of PERIODS){
+    for(const m of state.meds.filter(x => x.period===p.id)){
+      h += `<div class="medit"><div class="t"><b>${esc(m.name)}</b><span>${p.label} · ${esc(m.instr)}</span></div>
+        <div><button class="del" data-act="editMed" data-id="${m.id}" style="color:var(--accent)">Editar</button>
+        <button class="del" data-act="rmMed" data-id="${m.id}">Remover</button></div></div>`;
+    }
+  }
+  h += `</div>
+  <h2 id="formTitle">Adicionar remédio</h2><div class="card">
+    <input type="hidden" id="mid">
+    <label for="mn">Nome</label><input id="mn" type="text">
+    <label for="mi">Instruções</label><input id="mi" type="text" placeholder="ex.: após o jantar">
+    <label for="mp">Período</label><select id="mp">${PERIODS.map(p=>`<option value="${p.id}">${p.label}</option>`).join('')}</select>
+    <button class="primary" data-act="saveMed">Salvar remédio</button>
+  </div>
+  <h2>Conta</h2><div class="card">
+    <p class="note" style="margin-top:0">${userEmail ? `Conectado como ${esc(userEmail)}.` : 'Conectado.'}</p>
+    <button class="secondary" data-act="logout">Sair deste aparelho</button>
+  </div>`;
+  return h;
+}
+
+function renderLogin(){
+  setHead('Saúde diária', 'Entre uma vez neste aparelho.');
+  if(!supa) return `<p class="empty">Falta configurar o arquivo config.js (veja o README).</p>`;
+  return `<form class="card" id="loginForm">
+    <label for="le">E-mail</label><input id="le" type="email" autocomplete="username" required>
+    <label for="lp">Senha</label><input id="lp" type="password" autocomplete="current-password" required>
+    <button class="primary" type="submit">Entrar</button>
+  </form>`;
+}
+
+function render(){
+  const app = document.getElementById('app');
+  const nav = document.querySelector('nav');
+  if(!store || showLogin){ nav.style.display = 'none'; app.innerHTML = renderLogin(); return }
+  nav.style.display = '';
+  renderTabs();
+  app.innerHTML = ({hoje:renderHoje, glicose:renderGlicose, pressao:renderPressao, historico:renderHistorico, dados:renderDados})[tab]();
+}
+
+/* ---------- Ações ---------- */
+function shiftDay(n){const [y,m,d] = viewDay.split('-').map(Number); const dt = new Date(y,m-1,d+n); const k = ymd(dt); if(k<=ymd(new Date())){viewDay = k; render()}}
+
+function offerFile(filename, data, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data], {type}));
+  a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  toast('Arquivo salvo.');
+}
+function csv(){
+  const q = v => { const s = String(v ?? ''); return /[;"\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s };
+  const rows = [['tipo','data','hora','item','valor1','valor2','valor3','observacao']];
+  const names = Object.fromEntries([...store.rows.meds.values()].map(m => [m.id, m.name]));
+  for(const day of Object.keys(state.doses).sort()) for(const [id,t] of Object.entries(state.doses[day]))
+    rows.push(['remedio',day,t,names[id]||id,'','','','']);
+  for(const e of state.glucose){const d = new Date(e.ts); rows.push(['glicose',ymd(d),hm(d),e.moment,e.value,'','',e.note||''])}
+  for(const e of state.bp){const d = new Date(e.ts); rows.push(['pressao',ymd(d),hm(d),'',e.sys,e.dia,e.pulse||'',e.note||''])}
+  return '\uFEFF' + rows.map(r => r.map(q).join(';')).join('\n');
+}
+
+document.getElementById('app').addEventListener('submit', async e => {
+  if(e.target.id!=='loginForm') return;
+  e.preventDefault();
+  const b = e.target.querySelector('button'); b.disabled = true;
+  try{ await login(document.getElementById('le').value.trim(), document.getElementById('lp').value) }
+  catch(err){ toast(navigator.onLine ? 'E-mail ou senha incorretos.' : 'Sem internet. Conecte para entrar.'); b.disabled = false }
+});
+
+document.getElementById('app').addEventListener('click', async e => {
+  const med = e.target.closest('[data-med]');
+  if(med){
+    await toggleDose(store, med.dataset.med, viewDay);
+    commit(); return;
+  }
+  const dayBtn = e.target.closest('[data-day]');
+  if(dayBtn){ viewDay = dayBtn.dataset.day; tab = 'hoje'; render(); window.scrollTo(0,0); return }
+  const del = e.target.closest('[data-del]');
+  if(del){
+    if(!confirm('Apagar este registro?')) return;
+    remove(store, del.dataset.del, del.dataset.id);
+    commit('Registro apagado.'); return;
+  }
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const a = b.dataset.act;
+  if(a==='prev') shiftDay(-1);
+  else if(a==='next') shiftDay(1);
+  else if(a==='saveGlu'){
+    const v = parseInt(document.getElementById('gv').value,10);
+    const t = new Date(document.getElementById('gt').value);
+    if(!(v>=20 && v<=600)){ toast('Digite um valor entre 20 e 600.'); return }
+    if(isNaN(t)){ toast('Confira a data e hora.'); return }
+    save(store, 'glucose', {id:crypto.randomUUID(), measured_at:t.toISOString(), value:v, moment:document.getElementById('gm').value, note:document.getElementById('gn').value.trim()});
+    commit('Glicose salva.');
+  }
+  else if(a==='saveBp'){
+    const s = parseInt(document.getElementById('ps').value,10), d = parseInt(document.getElementById('pd').value,10);
+    const p = parseInt(document.getElementById('pp').value,10);
+    const t = new Date(document.getElementById('pt').value);
+    if(!(s>=50 && s<=280 && d>=30 && d<=180)){ toast('Confira a máxima e a mínima.'); return }
+    if(isNaN(t)){ toast('Confira a data e hora.'); return }
+    save(store, 'bp', {id:crypto.randomUUID(), measured_at:t.toISOString(), systolic:s, diastolic:d, pulse:(p>=20&&p<=250)?p:null, note:document.getElementById('pn').value.trim()});
+    commit('Pressão salva.');
+  }
+  else if(a==='exportJson') offerFile(`backup-saude-${ymd(new Date())}.json`, JSON.stringify(state,null,1), 'application/json');
+  else if(a==='exportCsv') offerFile(`saude-${ymd(new Date())}.csv`, csv(), 'text/csv;charset=utf-8');
+  else if(a==='import') document.getElementById('fileIn').click();
+  else if(a==='logout'){
+    const n = store.queue.size;
+    if(!confirm(n ? `Há ${n} ${n===1?'alteração':'alterações'} ainda não ${n===1?'enviada':'enviadas'}. Se sair agora, ${n===1?'ela será perdida':'elas serão perdidas'}. Sair mesmo assim?` : 'Sair deste aparelho?')) return;
+    logout();
+  }
+  else if(a==='editMed'){
+    const m = state.meds.find(x => x.id===b.dataset.id); if(!m) return;
+    document.getElementById('mid').value = m.id; document.getElementById('mn').value = m.name;
+    document.getElementById('mi').value = m.instr; document.getElementById('mp').value = m.period;
+    document.getElementById('formTitle').textContent = 'Editar remédio';
+    document.getElementById('mn').focus();
+  }
+  else if(a==='rmMed'){
+    const m = state.meds.find(x => x.id===b.dataset.id);
+    if(!m || !confirm(`Remover “${m.name}” da lista? O histórico já registrado continua no backup.`)) return;
+    remove(store, 'meds', m.id); commit('Remédio removido.');
+  }
+  else if(a==='saveMed'){
+    const name = document.getElementById('mn').value.trim(); if(!name){ toast('Digite o nome do remédio.'); return }
+    const id = document.getElementById('mid').value;
+    const data = {name, instr:document.getElementById('mi').value.trim(), period:document.getElementById('mp').value};
+    if(id) save(store, 'meds', {id, ...data});
+    else save(store, 'meds', {id:crypto.randomUUID(), sort:Math.max(0, ...[...store.rows.meds.values()].map(m => m.sort)) + 1, ...data});
+    commit('Remédio salvo.');
+  }
+});
+
+document.getElementById('fileIn').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f) return;
+  try{
+    const d = JSON.parse(await f.text());
+    if(!valid(d)) throw new Error('formato');
+    if(!confirm(`Juntar o backup aos dados atuais? (${d.glucose.length} glicoses, ${d.bp.length} pressões, ${d.meds.length} remédios)
+
+O que faltar será acrescentado. Se um registro existir nos dois, fica a versão mais recente. Nada será apagado. Vale para todos os seus aparelhos.`)) return;
+    const n = await importBackup(store, userId, d);
+    commit(n ? `Backup juntado: ${n} ${n===1?'registro novo ou atualizado':'registros novos ou atualizados'}.` : 'Nada a juntar: os dados já estão em dia.');
+  }catch(err){ toast('Esse arquivo não é um backup deste app.') }
+});
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+if(userId){
+  try{
+    store = await openStore(userId, {status:showSync, synced});
+    refresh();
+    userEmail = (await supa.auth.getSession()).data.session?.user.email || '';
+  }catch(e){
+    console.error(e);
+    document.getElementById('banner').innerHTML = '<div class="banner">Este navegador não está salvando os dados. Faça um backup em “Dados” antes de fechar.</div>';
+  }
+}
+render();
+store?.syncNow();
+</script>
+</body>
+</html>
